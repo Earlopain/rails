@@ -57,7 +57,6 @@ PATH
       rack-test (>= 0.6.3)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
-      useragent (~> 0.16)
     actiontext (8.0.0.alpha)
       actionpack (= 8.0.0.alpha)
       activerecord (= 8.0.0.alpha)

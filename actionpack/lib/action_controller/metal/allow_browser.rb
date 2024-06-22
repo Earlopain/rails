@@ -51,6 +51,7 @@ module ActionController # :nodoc:
 
     private
       def allow_browser(versions:, block:)
+        gem "useragent", "~> 0.16"
         require "useragent"
 
         if BrowserBlocker.new(request, versions: versions).blocked?

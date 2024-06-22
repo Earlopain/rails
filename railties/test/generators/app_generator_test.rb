@@ -596,6 +596,12 @@ class AppGeneratorTest < Rails::Generators::TestCase
     assert_no_file "bin/brakeman"
   end
 
+  def test_inclusion_of_useragent
+    run_generator
+
+    assert_gem "useragent"
+  end
+
   def test_inclusion_of_ci_files
     run_generator
     assert_file ".github/workflows/ci.yml"

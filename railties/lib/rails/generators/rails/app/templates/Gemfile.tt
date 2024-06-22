@@ -34,6 +34,9 @@ gem "kamal", require: false
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 # gem "rack-cors"
 <%- end -%>
+
+# Control access to controllers via the user-agent header
+gem "useragent", "~> 0.16"
 <% if RUBY_ENGINE == "ruby" -%>
 
 group :development, :test do
