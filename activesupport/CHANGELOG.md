@@ -1,3 +1,7 @@
+*   Allow passing `Pathname`s to `ActiveSupport::FileUpdateChecker`
+
+    *Earlopain*
+
 *   `ActiveSupport::CurrentAttributes#attributes` now will return a new hash object on each call.
 
     Previously, the same hash object was returned each time that method was called.

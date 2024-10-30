@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "pathname"
 require "active_support/core_ext/time/calculations"
 
 module ActiveSupport
@@ -46,7 +47,7 @@ module ActiveSupport
         raise ArgumentError, "A block is required to initialize a FileUpdateChecker"
       end
 
-      @files = files.freeze
+      @files = files.map { |f| Pathname.new(f).expand_path }.freeze
       @glob  = compile_glob(dirs)
       @block = block
 
@@ -102,8 +103,8 @@ module ActiveSupport
     private
       def watched
         @watched || begin
-          all = @files.select { |f| File.exist?(f) }
-          all.concat(Dir[@glob]) if @glob
+          all = @files.select { |f| f.exist? }
+          all.concat(Pathname.glob(@glob)) if @glob
           all.tap(&:uniq!)
         end
       end
@@ -129,7 +130,7 @@ module ActiveSupport
         #
         # Read t1.compare_without_coercion(t2) < 0 as t1 < t2.
         paths.each do |path|
-          mtime = File.mtime(path)
+          mtime = path.mtime
 
           next if time_now.compare_without_coercion(mtime) < 0
 
@@ -152,7 +153,7 @@ module ActiveSupport
       end
 
       def escape(key)
-        key.gsub(",", '\,')
+        Pathname.new(key).expand_path.to_s.gsub(",", '\,')
       end
 
       def compile_ext(array)

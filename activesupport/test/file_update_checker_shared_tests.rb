@@ -273,6 +273,23 @@ module FileUpdateCheckerSharedTests
     end
   end
 
+  test "initialize accepts `Pathname`s" do
+    i = 0
+    files = tmpfiles.map { |f| Pathname.new(f) }
+    dir = Pathname.new("#{tmpdir}/foo")
+    dir.mkpath
+
+    checker = new_checker(files, dir => :rb) { i += 1 }
+
+    touch(files)
+    assert checker.execute_if_updated
+
+    touch(dir.join("bar.rb"))
+    assert checker.execute_if_updated
+
+    assert_equal 2, i
+  end
+
   private
     def mkdir(dirs)
       FileUtils.mkdir(dirs)
