@@ -16,6 +16,10 @@ module RailsStrictWarnings # :nodoc:
 
     # TODO: We need to decide what to do with this.
     /Status code :unprocessable_entity is deprecated/,
+
+    # TODO: Many gems currently do `require "cgi"`: https://bugs.ruby-lang.org/issues/21258
+    # It will take time until the necessary changes are released for all of them.
+    /CGI library is removed from Ruby 3\.5/,
   )
 
   SUPPRESSED_WARNINGS = Regexp.union(
