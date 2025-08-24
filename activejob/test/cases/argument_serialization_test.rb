@@ -260,6 +260,26 @@ class ArgumentSerializationTest < ActiveSupport::TestCase
     assert_match "Unable to serialize Person without an id.", err.message
   end
 
+  [
+    { foo: "bar", baz: "bat" },
+    { "foo" => "bar", "baz" => "bat" },
+    { foo: "bar", "baz" => "bat" },
+  ].each do |hash|
+    test "with the old symbol serialization format for #{hash.inspect}" do
+      with_new_symbol_format(false) do
+        assert_arguments_unchanged(hash)
+        assert_arguments_unchanged(Hash.ruby2_keywords_hash(hash))
+      end
+    end
+
+    test "with the new symbol serialization format for #{hash.inspect}" do
+      with_new_symbol_format(true) do
+        assert_arguments_unchanged(hash)
+        assert_arguments_unchanged(Hash.ruby2_keywords_hash(hash))
+      end
+    end
+  end
+
   private
     def assert_arguments_unchanged(*args)
       assert_arguments_roundtrip args
@@ -273,5 +293,13 @@ class ArgumentSerializationTest < ActiveSupport::TestCase
       ArgumentsRoundTripJob.perform_later(*args) # Actually performed inline
 
       JobBuffer.last_value
+    end
+
+    def with_new_symbol_format(value)
+      old = ActiveJob::Arguments.optimized_symbol_only_serialization_format
+      ActiveJob::Arguments.optimized_symbol_only_serialization_format = value
+      yield
+    ensure
+      ActiveJob::Arguments.optimized_symbol_only_serialization_format = old
     end
 end

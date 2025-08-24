@@ -52,6 +52,13 @@ module ActiveJob
       end
     end
 
+    initializer "active_job.optimized_symbol_only_serialization_format" do |app|
+      ActiveSupport.on_load(:active_job) do
+        format = app.config.active_job.optimized_symbol_only_serialization_format
+        ActiveJob::Arguments.optimized_symbol_only_serialization_format = format
+      end
+    end
+
     initializer "active_job.set_configs" do |app|
       options = app.config.active_job
       options.queue_adapter ||= (Rails.env.test? ? :test : :async)

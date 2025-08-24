@@ -372,6 +372,10 @@ module Rails
           if respond_to?(:action_view)
             action_view.remove_hidden_field_autocomplete = true
           end
+
+          if respond_to?(:active_job)
+            active_job.optimized_symbol_only_serialization_format = true
+          end
         else
           raise "Unknown version #{target_version.to_s.inspect}"
         end

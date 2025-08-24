@@ -64,3 +64,12 @@
 # Applications that want to keep generating the `autocomplete` attribute for those tags can set it to `false`.
 #++
 # Rails.configuration.action_view.remove_hidden_field_autocomplete = true
+
+###
+# When enabled, ActiveJob hash arguments (including keyword arguments) will use a format
+# that is more optimized when all keys are symbols.
+#
+# Only change this value after your application is fully deployed to Rails 8.1
+# and you have no plans to rollback.
+#++
+# Rails.configuration.active_job.optimized_symbol_only_serialization_format = true

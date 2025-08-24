@@ -26,6 +26,8 @@ module ActiveJob
   class SerializationError < ArgumentError; end
 
   module Arguments
+    mattr_accessor :optimized_symbol_only_serialization_format, default: false
+
     extend self
     # Serializes a set of arguments. Intrinsic types that can safely be
     # serialized without mutation are returned as-is. Arrays/Hashes are
@@ -53,6 +55,8 @@ module ActiveJob
       # :nodoc:
       RUBY2_KEYWORDS_KEY = "_aj_ruby2_keywords"
       # :nodoc:
+      ONLY_SYMBOL_KEYS = "_aj_ony_symbols"
+      # :nodoc:
       WITH_INDIFFERENT_ACCESS_KEY = "_aj_hash_with_indifferent_access"
       # :nodoc:
       OBJECT_SERIALIZER_KEY = "_aj_serialized"
@@ -62,11 +66,12 @@ module ActiveJob
         GLOBALID_KEY, GLOBALID_KEY.to_sym,
         SYMBOL_KEYS_KEY, SYMBOL_KEYS_KEY.to_sym,
         RUBY2_KEYWORDS_KEY, RUBY2_KEYWORDS_KEY.to_sym,
+        ONLY_SYMBOL_KEYS, ONLY_SYMBOL_KEYS.to_sym,
         OBJECT_SERIALIZER_KEY, OBJECT_SERIALIZER_KEY.to_sym,
         WITH_INDIFFERENT_ACCESS_KEY, WITH_INDIFFERENT_ACCESS_KEY.to_sym,
       ].to_set
-      private_constant :RESERVED_KEYS, :GLOBALID_KEY,
-        :SYMBOL_KEYS_KEY, :RUBY2_KEYWORDS_KEY, :WITH_INDIFFERENT_ACCESS_KEY
+      private_constant :RESERVED_KEYS, :GLOBALID_KEY, :SYMBOL_KEYS_KEY, :RUBY2_KEYWORDS_KEY,
+        :RUBY2_KEYWORDS_KEY, :ONLY_SYMBOL_KEYS, :WITH_INDIFFERENT_ACCESS_KEY
 
       def serialize_argument(argument)
         case argument
@@ -91,15 +96,14 @@ module ActiveJob
         when Hash
           symbol_keys = argument.keys
           symbol_keys.select! { |k| k.is_a?(Symbol) }
-          symbol_keys.map!(&:name)
 
-          aj_hash_key = if Hash.ruby2_keywords_hash?(argument)
-            RUBY2_KEYWORDS_KEY
-          else
-            SYMBOL_KEYS_KEY
-          end
+          ruby2_hash = Hash.ruby2_keywords_hash?(argument)
           result = serialize_hash(argument)
-          result[aj_hash_key] = symbol_keys
+          if optimized_symbol_only_serialization_format
+            serialize_hash_8_1_metadata(argument, symbol_keys, ruby2_hash, result)
+          else
+            serialize_hash_8_0_metadata(argument, symbol_keys, ruby2_hash, result)
+          end
           result
         else
           if argument.respond_to?(:permitted?) && argument.respond_to?(:to_h)
@@ -147,15 +151,42 @@ module ActiveJob
         end
       end
 
+      def serialize_hash_8_0_metadata(hash, symbol_keys, ruby2_hash, result)
+        aj_hash_key = ruby2_hash ? RUBY2_KEYWORDS_KEY : SYMBOL_KEYS_KEY
+        result[aj_hash_key] = symbol_keys.map!(&:name)
+      end
+
+      def serialize_hash_8_1_metadata(hash, symbol_keys, ruby2_hash, result)
+        if symbol_keys.length > 0
+          if symbol_keys.length == hash.length
+            result[ONLY_SYMBOL_KEYS] = true
+          else
+            result[SYMBOL_KEYS_KEY] = symbol_keys.map!(&:name)
+          end
+        end
+
+        result[RUBY2_KEYWORDS_KEY] = true if ruby2_hash
+      end
+
       def deserialize_hash(serialized_hash)
         result = serialized_hash.transform_values { |v| deserialize_argument(v) }
+        if symbol_keys = result.delete(RUBY2_KEYWORDS_KEY)
+          if symbol_keys == true
+            # new 8.1 format
+            result = Hash.ruby2_keywords_hash(result)
+          else
+            # old <= 8.0 format
+            result = transform_symbol_keys(result, symbol_keys)
+            result = Hash.ruby2_keywords_hash(result)
+          end
+        end
+
         if result.delete(WITH_INDIFFERENT_ACCESS_KEY)
           result = result.with_indifferent_access
+        elsif result.delete(ONLY_SYMBOL_KEYS)
+          result.transform_keys! { |key| key.to_sym }
         elsif symbol_keys = result.delete(SYMBOL_KEYS_KEY)
           result = transform_symbol_keys(result, symbol_keys)
-        elsif symbol_keys = result.delete(RUBY2_KEYWORDS_KEY)
-          result = transform_symbol_keys(result, symbol_keys)
-          result = Hash.ruby2_keywords_hash(result)
         end
         result
       end

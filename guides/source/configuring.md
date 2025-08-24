@@ -66,6 +66,7 @@ Below are the default values associated with each target version. In cases of co
 - [`config.action_view.render_tracker`](#config-action-view-render-tracker): `:ruby`
 - [`config.active_record.raise_on_missing_required_finder_order_columns`](#config-active-record-raise-on-missing-required-finder-order-columns): `true`
 - [`config.yjit`](#config-yjit): `!Rails.env.local?`
+- [`config.active_job.optimized_symbol_only_serialization_format`](#config-optimized-symbol-only-serialization-format): `true`
 
 #### Default Values for Target Version 8.0
 
@@ -3087,6 +3088,18 @@ The default value depends on the `config.load_defaults` target version:
 
 Determines whether job context for query tags will be automatically updated via
 an `around_perform`. The default value is `true`.
+
+### `config.active_job.optimized_symbol_only_serialization_format`
+
+Determines wether a more optimized serialization format for job arguments should
+be used when a hash contains only symbol keys.
+
+The default value depends on the `config.load_defaults` target version:
+
+| Starting with version | The default value is |
+| --------------------- | -------------------- |
+| (original)            | `false`              |
+| 8.1                   | `true`               |
 
 ### Configuring Action Cable
 
