@@ -135,7 +135,7 @@ class FrameworkDefaultTest < Minitest::Test
 
     def config_for_defaults(defaults)
       full_class = wrapped_defaults(defaults)
-      parsed = Prism.parse(full_class).value
+      parsed = Prism.parse(full_class, version: "latest").value
       visitor.visit(parsed)
       visitor.config_map
     end

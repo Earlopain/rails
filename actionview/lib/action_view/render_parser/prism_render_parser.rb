@@ -4,7 +4,7 @@ module ActionView
   module RenderParser
     class PrismRenderParser < Base # :nodoc:
       def render_calls
-        queue = [Prism.parse(@code).value]
+        queue = [Prism.parse(@code, version: RUBY_VERSION).value]
         templates = []
 
         while (node = queue.shift)

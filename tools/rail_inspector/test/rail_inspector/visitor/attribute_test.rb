@@ -20,7 +20,7 @@ class AttributeTest < Minitest::Test
     FILE
 
     visitor = RailInspector::Visitor::Attribute.new
-    Prism.parse(source).value.accept(visitor)
+    Prism.parse(source).value.accept(visitor, version: "latest")
 
     assert_equal %w[logger], visitor.attribute_map["Rails"][:attr_accessor].to_a
 

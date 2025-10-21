@@ -22,9 +22,10 @@ module Rails
     # Wraps a regular expression that will be tested against each of the source
     # file's comments.
     class ParserExtractor < Struct.new(:pattern)
-      if defined?(Prism)
+      # Prism is the default since Ruby 3.4. Otherwise, use ripper.
+      if defined?(Prism) && RUBY_VERSION >= "3.4.0"
         def annotations(file)
-          result = Prism.parse_file(file)
+          result = Prism.parse_file(file, version: RUBY_VERSION)
           return [] unless result.success?
 
           result.comments.filter_map do |comment|

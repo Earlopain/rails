@@ -33,7 +33,7 @@ module RailInspector
 
           @loads[current_file] = { requires: [], autoloads: [] }
 
-          Prism.parse_file(current_file).value.accept(v)
+          Prism.parse_file(current_file, version: "latest").value.accept(v)
         end
       end
 

@@ -27,7 +27,7 @@ class LoadTest < Minitest::Test
     loads = { requires: [], autoloads: [] }
 
     visitor = RailInspector::Visitor::Load.new { loads }
-    Prism.parse(source).value.accept(visitor)
+    Prism.parse(source, version: "latest").value.accept(visitor)
 
     assert_equal ["a", "b", "k", "p/q"], loads[:requires]
     assert_equal ["d/l", "n/o", "d/e/f/g", "i/j"], loads[:autoloads]

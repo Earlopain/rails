@@ -235,7 +235,7 @@ module ActionView
           require "prism"
 
           if Prism::VERSION >= "1.0.0"
-            result = Prism.parse(compiled_source).value
+            result = Prism.parse(compiled_source, version: RUBY_VERSION).value
             result.breadth_first_search { |node| node.node_id == node_id }
           end
         else

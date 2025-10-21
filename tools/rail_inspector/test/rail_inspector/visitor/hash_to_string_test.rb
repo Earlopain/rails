@@ -25,7 +25,7 @@ class HashToStringTest < Minitest::Test
 
   private
     def string_for(hash_as_string)
-      ast = Prism.parse(hash_as_string).value
+      ast = Prism.parse(hash_as_string, version: "latest").value
       visitor = RailInspector::Visitor::HashToString.new
       visitor.visit(ast)
       visitor.to_s

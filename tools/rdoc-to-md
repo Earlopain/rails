@@ -145,7 +145,7 @@ class CodeBlockConverter
   def initialize(file_path)
     @file_path = file_path
 
-    @parse_result = Prism.parse_file(@file_path)
+    @parse_result = Prism.parse_file(@file_path, version: "latest")
     @parse_result.attach_comments!
 
     @cv = CommentVisitor.new

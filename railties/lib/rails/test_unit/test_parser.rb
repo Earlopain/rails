@@ -7,7 +7,8 @@ rescue LoadError
   # define a fallback parser using ripper.
 end
 
-if defined?(Prism)
+# Prism is the default since Ruby 3.4. Otherwise, use ripper.
+if defined?(Prism) && RUBY_VERSION >= "3.4.0"
   module Rails
     module TestUnit
       # Parse a test file to extract the line ranges of all tests in both
@@ -25,7 +26,7 @@ if defined?(Prism)
 
         private
           def self.ranges(filepath)
-            queue = [Prism.parse_file(filepath).value]
+            queue = [Prism.parse_file(filepath, version: RUBY_VERSION).value]
             begins_to_ends = {}
             while (node = queue.shift)
               case node.type

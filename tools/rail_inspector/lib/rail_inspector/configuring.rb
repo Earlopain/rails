@@ -16,7 +16,7 @@ module RailInspector
         end
 
         def parse
-          @parse ||= Prism.parse_file(@pathname.to_s).value
+          @parse ||= Prism.parse_file(@pathname.to_s, version: "latest").value
         end
 
         def read

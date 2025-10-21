@@ -335,11 +335,13 @@ class RipperRubyTrackerTest < ActiveSupport::TestCase
   end
 end
 
-class PrismRubyTrackerTest < ActiveSupport::TestCase
-  include SharedTrackerTests
-  include RubyTrackerTests
+if RUBY_VERSION >= "3.4.0"
+  class PrismRubyTrackerTest < ActiveSupport::TestCase
+    include SharedTrackerTests
+    include RubyTrackerTests
 
-  def parser_class
-    ActionView::RenderParser::PrismRenderParser
+    def parser_class
+      ActionView::RenderParser::PrismRenderParser
+    end
   end
 end
